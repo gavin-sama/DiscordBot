@@ -1,4 +1,5 @@
 # DiscordBot
+Music bot
 
 Team GIG:
 
