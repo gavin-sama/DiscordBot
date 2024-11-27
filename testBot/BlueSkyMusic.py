@@ -5,6 +5,9 @@ import yt_dlp
 from dotenv import load_dotenv
 import requests
 import random
+from APImusicGenre import get_genre
+
+
 
 load_dotenv()
 TOKEN = os.getenv('discord_token')
@@ -192,6 +195,30 @@ async def on_message(message):
         except Exception as e:
             print(f"Error in ?stop command: {e}")
             await message.channel.send("Could not stop playback.")
+
+    if message.content.startswith("?genre"):
+        command_parts = message.content.split(maxsplit=1)
+        if len(command_parts) < 2:
+            await message.channel.send("Please provide a genre name to search for.")
+            return
+
+        genre_name = command_parts[1]
+
+        try:
+            # Call the get_genre function to fetch the genre details
+            genre_data = get_genre(genre_name)
+
+            # Check if the genre was found
+            if "detail" in genre_data and genre_data["detail"] == "Genre not found":
+                await message.channel.send(f"Genre '{genre_name}' not found.")
+            else:
+                # Format and send the genre data
+                name = genre_data.get("name", "Unknown")
+                description = genre_data.get("description", "No description available.")
+                await message.channel.send(f"**Name:** {name}\n**Description:** {description}")
+        except Exception as e:
+            print(f"Error fetching genre: {e}")
+            await message.channel.send("An error occurred while fetching the genre information.")   
 
 async def play_next_in_queue(guild_id, message):
     if guild_id not in queues or not queues[guild_id]:
